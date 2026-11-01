@@ -4,7 +4,7 @@ using Rudy.OrderLab;
 
 internal static class Program
 {
-    private static string Usage=>"orderlab check HISTORY [--format text|json|html] [--max-states 1..1000000] [--timeout-ms 1..60000] [--partition] [--include-values]\norderlab verify HISTORY --witness 1,2,3\nExit: 0=linearizable/valid witness, 1=rejected/invalid witness, 2=inconclusive or input/usage/I/O error.\n";
+    private static string Usage=>"orderlab check HISTORY [--format text|json|html] [--output NEW_FILE] [--max-states 1..1000000] [--timeout-ms 1..60000] [--partition] [--include-values]\norderlab verify HISTORY --witness 1,2,3\nExit: 0=linearizable/valid witness, 1=rejected/invalid witness, 2=inconclusive or input/usage/I/O error.\n";
     public static int Main(string[] args)
     {
         try
@@ -15,7 +15,7 @@ internal static class Program
             var options=new Dictionary<string,string>(StringComparer.Ordinal);
             for(int i=2;i<args.Length;i++)
             {
-                var flag=args[i];if(!new[]{"--format","--max-states","--timeout-ms","--partition","--include-values","--witness"}.Contains(flag))throw new ArgumentException("Unknown option.");
+                var flag=args[i];if(!new[]{"--format","--output","--max-states","--timeout-ms","--partition","--include-values","--witness"}.Contains(flag))throw new ArgumentException("Unknown option.");
                 var value=flag is "--partition" or "--include-values"?"true":++i<args.Length?args[i]:throw new ArgumentException("Missing option value.");
                 if(!options.TryAdd(flag,value))throw new ArgumentException("Duplicate option.");
             }
@@ -34,7 +34,7 @@ internal static class Program
             if(r.Verdict==Verdict.Linearizable && !WitnessVerifier.Verify(h,model,r.Witness))throw new InvalidOperationException("Internal witness verification failed.");
             source.EnsureStable();
             var report=Reports.Create(h,r,source.Sha256,options.ContainsKey("--include-values"));
-            Console.Write(format switch{"json"=>Reports.Json(report),"html"=>Reports.Html(report),_=>Reports.Text(report)});
+            ReportOutput.Write(format switch{"json"=>Reports.Json(report),"html"=>Reports.Html(report),_=>Reports.Text(report)},options.GetValueOrDefault("--output"));
             return r.Verdict==Verdict.Linearizable?0:r.Verdict==Verdict.NotLinearizable?1:2;
         }
         catch(Exception e) when(e is ArgumentException or IOException or UnauthorizedAccessException or InvalidOperationException or OverflowException)
