@@ -19,6 +19,7 @@ internal static partial class Program
         WitnessTests();
         BudgetTests();
         CacheTests();
+        CounterTests();
         Console.WriteLine($"OrderLab: {assertions} assertions passed");
         return 0;
     }
