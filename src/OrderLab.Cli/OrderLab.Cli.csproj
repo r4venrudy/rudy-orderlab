@@ -1,0 +1,4 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><AssemblyName>orderlab</AssemblyName></PropertyGroup>
+  <ItemGroup><ProjectReference Include="../OrderLab.Core/OrderLab.Core.csproj" /></ItemGroup>
+</Project>
