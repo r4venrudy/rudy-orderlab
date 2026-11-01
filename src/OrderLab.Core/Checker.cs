@@ -11,8 +11,7 @@ public static class Checker
         var clock=System.Diagnostics.Stopwatch.StartNew();
         HistoryReader.Validate(history);
         if(history.Model!=model.Name) throw new ArgumentException("History and model differ.");
-        if(history.Operations.Select(o=>o.Object).Distinct(StringComparer.Ordinal).Count()>1) throw new ArgumentException("Check one object at a time.");
-        var initial=model.Initial(history.Initial);
+        var initial=ObjectState.Initial(history,model);
         foreach(var o in history.Operations) model.Validate(o);
         var predecessors=Precedence.Build(history);
         var all=(BigInteger.One<<history.Operations.Length)-1;
@@ -31,7 +30,7 @@ public static class Checker
                 frontier=path.ToArray();var blocked=new List<Rejection>();
                 for(int j=0;j<history.Operations.Length;j++)
                     if((done&(BigInteger.One<<j))==0 && Precedence.Enabled(predecessors[j],done) &&
-                        !model.Apply(state,history.Operations[j],out _,out var why))
+                        !ObjectState.Apply(state,history.Operations[j],model,out _,out var why))
                         blocked.Add(new(history.Operations[j].Id,why));
                 rejections=blocked.ToArray();
             }
@@ -43,7 +42,7 @@ public static class Checker
                 if((done&bit)!=0 || !Precedence.Enabled(predecessors[i],done)) continue;
                 transitions++;
                 var o=history.Operations[i];
-                if(!model.Apply(state,o,out var next,out _)) continue;
+                if(!ObjectState.Apply(state,o,model,out var next,out _)) continue;
                 path.Add(o.Id);
                 if(Search(done|bit,next)) return true;
                 path.RemoveAt(path.Count-1);
