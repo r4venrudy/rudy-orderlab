@@ -12,6 +12,7 @@ internal static partial class Program
     public static int Main()
     {
         Assert(new Limits().MaxStates > 0, "positive default state budget");
+        ReaderTests();
         Console.WriteLine($"OrderLab: {assertions} assertions passed");
         return 0;
     }
