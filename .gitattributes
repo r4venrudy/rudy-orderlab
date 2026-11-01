@@ -1,0 +1,8 @@
+* text=auto eol=lf
+*.dll binary
+*.exe binary
+*.nupkg binary
+*.zip binary
+*.gz binary
+*.sh text eol=lf
+*.cmd text eol=crlf
