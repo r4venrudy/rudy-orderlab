@@ -11,16 +11,24 @@ internal static class Program
         {
             if(args.Length==1 && args[0]=="--version"){Console.WriteLine("orderlab 0.1.0-preview");return 0;}
             if(args.Length==1 && args[0] is "--help" or "-h"){Console.Write(Usage);return 0;}
-            if(args.Length<2 || args[0] is not ("check" or "verify"))throw new ArgumentException("Expected a command and history path.");
+            if(args.Length<2 || args[0] is not ("check" or "verify" or "shrink"))throw new ArgumentException("Expected check, verify or shrink and a history path.");
             var options=new Dictionary<string,string>(StringComparer.Ordinal);
             for(int i=2;i<args.Length;i++)
             {
-                var flag=args[i];if(!new[]{"--format","--output","--max-states","--timeout-ms","--partition","--include-values","--witness"}.Contains(flag))throw new ArgumentException("Unknown option.");
+                var flag=args[i];if(!new[]{"--format","--output","--max-states","--timeout-ms","--max-checks","--partition","--include-values","--witness"}.Contains(flag))throw new ArgumentException("Unknown option.");
                 var value=flag is "--partition" or "--include-values"?"true":++i<args.Length?args[i]:throw new ArgumentException("Missing option value.");
                 if(!options.TryAdd(flag,value))throw new ArgumentException("Duplicate option.");
             }
             if(options.ContainsKey("--witness")!=(args[0]=="verify"))throw new ArgumentException("Only verify requires --witness.");
             using var source=new HistoryFile(args[1]);var h=HistoryReader.Read(source.Bytes);var model=Models.Get(h.Model);
+            if(args[0]=="shrink")
+            {
+                if(!options.ContainsKey("--output") || options.Keys.Any(k=>!new[]{"--output","--max-checks","--max-states","--timeout-ms"}.Contains(k)))throw new ArgumentException("Shrink requires --output NEW_HISTORY and accepts only search/check budgets.");
+                var reduced=Shrinker.Shrink(h,model,Parse(options.GetValueOrDefault("--max-checks","128")),new(Parse(options.GetValueOrDefault("--max-states","10000")),Parse(options.GetValueOrDefault("--timeout-ms","500"))));
+                source.EnsureStable();ReportOutput.Write(HistoryWriter.Json(reduced.History),options["--output"]);
+                Console.WriteLine($"Retained operations: {reduced.History.Operations.Length}; deletion checks: {reduced.Checks}; one-deletion-minimal: {reduced.OneMinimal}. {reduced.Reason}");return 1;
+            }
+            if(options.ContainsKey("--max-checks"))throw new ArgumentException("Only shrink accepts --max-checks.");
             if(args[0]=="verify")
             {
                 var raw=options["--witness"];var nums=raw.Length==0?Array.Empty<int>():raw.Split(',').Select(Parse).ToArray();

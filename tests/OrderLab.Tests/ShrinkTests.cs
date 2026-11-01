@@ -8,5 +8,6 @@ internal static partial class Program
         Assert(r.OneMinimal && r.History.Operations.Length==2,"remove irrelevant operation");
         Assert(Checker.Check(r.History,new RegisterModel()).Verdict==Verdict.NotLinearizable,"shrunk rejection rechecked");
         Assert(!Shrinker.Shrink(h,new RegisterModel(),1).OneMinimal,"budget cannot claim minimal");
+        Assert(HistoryReader.Read(System.Text.Encoding.UTF8.GetBytes(HistoryWriter.Json(r.History))).Operations.Length==2,"shrunk history roundtrip");
     }
 }
