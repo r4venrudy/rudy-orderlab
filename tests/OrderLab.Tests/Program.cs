@@ -33,6 +33,7 @@ internal static partial class Program
         FileTests();
         RecorderTests();
         ConcurrentTests();
+        OracleTests();
         Console.WriteLine($"OrderLab: {assertions} assertions passed");
         return 0;
     }
