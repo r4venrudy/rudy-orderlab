@@ -11,6 +11,11 @@ internal static class Program
         {
             if(args.Length==1 && args[0]=="--version"){Console.WriteLine("orderlab 0.1.0-preview");return 0;}
             if(args.Length==1 && args[0] is "--help" or "-h"){Console.Write(Usage);return 0;}
+            if(args.Length==2 && args[0]=="record-demo")
+            {
+                var recorded=ConcurrentDemo.Record();ReportOutput.Write(HistoryWriter.Json(recorded),args[1]);
+                Console.WriteLine("Recorded 32 real Interlocked increments across four workers on one process-local clock.");return 0;
+            }
             if(args.Length<2 || args[0] is not ("check" or "verify" or "shrink"))throw new ArgumentException("Expected check, verify or shrink and a history path.");
             var options=new Dictionary<string,string>(StringComparer.Ordinal);
             for(int i=2;i<args.Length;i++)
