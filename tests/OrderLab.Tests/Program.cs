@@ -23,6 +23,7 @@ internal static partial class Program
         SetTests();
         QueueTests();
         StackTests();
+        MapTests();
         Console.WriteLine($"OrderLab: {assertions} assertions passed");
         return 0;
     }
