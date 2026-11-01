@@ -1,4 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup><OutputType>Exe</OutputType><AssemblyName>orderlab</AssemblyName></PropertyGroup>
+  <PropertyGroup>
+    <OutputType>Exe</OutputType><AssemblyName>orderlab</AssemblyName>
+    <PackAsTool>true</PackAsTool><ToolCommandName>orderlab</ToolCommandName>
+    <PackageId>Rudy.OrderLab.Tool</PackageId><Authors>raven</Authors>
+    <Description>Bounded offline concurrency history checking, witness replay, reduction and local timeline reports.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression><PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/r4venrudy/rudy-orderlab</RepositoryUrl>
+  </PropertyGroup>
   <ItemGroup><ProjectReference Include="../OrderLab.Core/OrderLab.Core.csproj" /></ItemGroup>
+  <ItemGroup>
+    <None Include="../../README.md;../../LICENSE;../../SECURITY.md;../../CONTRIBUTING.md;../../NuGet.Config" Pack="true" PackagePath="/" />
+    <None Include="../../assets/banner.svg" Pack="true" PackagePath="assets/" />
+    <None Include="../../docs/*.md" Pack="true" PackagePath="docs/" />
+    <None Include="../../examples/README.md;../../examples/make_histories.py" Pack="true" PackagePath="examples/" />
+  </ItemGroup>
 </Project>
