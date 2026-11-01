@@ -1,0 +1,11 @@
+# What validation establishes
+
+The native console suite uses .NET platform libraries only. On the initial Windows .NET 10.0.402 validation it passed **4,277 assertions**; POSIX adds a report-permission assertion. The fixed-seed tests independently enumerate small real-time-respecting permutations for **1,120 histories** across seven models, then compare both global and partitioned checker verdicts. The oracle does not call `IModel.Apply`, predecessor masks, search, memoization or composed state serialization.
+
+Coverage includes concurrent/stale register observations, duplicate successful CAS, integer canonicalization and overflow, set outcomes, FIFO/LIFO, map absence, independent objects, early-partition validation, forged witnesses, state budgets, cancellation, deepest prefixes, shrink minimality qualification, whole-file identities and exclusive output. It also performs every-byte JSON truncation before the final object close, **1,200 deterministic byte mutation cases**, and actual multithreaded Interlocked recordings. Mutation testing is a bounded robustness exercise, not exhaustive fuzzing.
+
+The independent Python installed-command suite currently checks **227 conditions on Windows** (228 on POSIX due to permissions): synthetic verdict manifest, exact intervals, Python SHA-256 oracles, independent witness command, partition equality, incomplete search gates, schema/option errors, default disclosure, explicit values, Unicode/space paths, source and report preservation, reduced-history recheck and actual recorder output.
+
+The runnable ConcurrentQueue adapter records a separate real platform implementation. The benchmark prints measured fully rejected workloads with runtime/OS metadata, not fabricated performance figures. Tests cover supplied histories and specifications; they do not establish global correctness, arbitrary workload coverage, distributed clock validity or production suitability.
+
+CI builds/tests on Ubuntu 24.04, Windows 2022 and macOS 15 with .NET SDK 10.0.403. Release jobs rerun the same validations, build native self-contained packages on their target hosts, run the installed binary oracle, and test an isolated local-feed `.nupkg` installation before publication. Actual run status and downloaded-asset proof are publication receipts, not a guarantee made by this static file.
