@@ -17,6 +17,7 @@ public static class Checker
         var predecessors=Precedence.Build(history);
         var all=(BigInteger.One<<history.Operations.Length)-1;
         var path=new List<string>();string[] witness=[];
+        string[] frontier=[];Rejection[] rejections=[];
         long states=0,transitions=0,cacheHits=0,cacheChars=0;bool exhausted=false;
         var failed=new HashSet<string>(StringComparer.Ordinal);
         bool Search(BigInteger done,string state)
@@ -25,6 +26,15 @@ public static class Checker
             { exhausted=true;return false; }
             states++;
             if(done==all) { witness=path.ToArray();return true; }
+            if(path.Count>=frontier.Length)
+            {
+                frontier=path.ToArray();var blocked=new List<Rejection>();
+                for(int j=0;j<history.Operations.Length;j++)
+                    if((done&(BigInteger.One<<j))==0 && Precedence.Enabled(predecessors[j],done) &&
+                        !model.Apply(state,history.Operations[j],out _,out var why))
+                        blocked.Add(new(history.Operations[j].Id,why));
+                rejections=blocked.ToArray();
+            }
             var key=done.ToString("X",System.Globalization.CultureInfo.InvariantCulture)+":"+state;
             if(failed.Contains(key)) { cacheHits++;return false; }
             for(int i=0;i<history.Operations.Length;i++)
@@ -46,6 +56,6 @@ public static class Checker
         var accepted=Search(0,initial);
         return new(accepted?Verdict.Linearizable:exhausted?Verdict.Inconclusive:Verdict.NotLinearizable,
             accepted?"A legal sequential witness preserves every real-time edge.":exhausted?"Search stopped at a state/time budget or cancellation; no negative conclusion.":"Every real-time-respecting candidate contradicts the model.",
-            witness,[],[],states,transitions,cacheHits);
+            witness,frontier,rejections,states,transitions,cacheHits);
     }
 }
