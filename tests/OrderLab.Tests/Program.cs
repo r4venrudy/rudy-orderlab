@@ -25,6 +25,7 @@ internal static partial class Program
         StackTests();
         MapTests();
         CasTests();
+        ClientTests();
         Console.WriteLine($"OrderLab: {assertions} assertions passed");
         return 0;
     }

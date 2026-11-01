@@ -47,6 +47,12 @@ public static class HistoryReader
             foreach (var a in o.Args) ValidateText(a);
             if (o.Result is not null) ValidateText(o.Result);
         }
+        foreach(var client in h.Operations.GroupBy(o=>o.Client,StringComparer.Ordinal))
+        {
+            long last=-1;
+            foreach(var o in client.OrderBy(o=>o.Start))
+            { if(o.Start<=last)throw new ArgumentException("A sequential client cannot have overlapping operations; use separate client IDs for concurrent workers.");last=o.End; }
+        }
     }
     private static void ValidateText(string value)
     {
