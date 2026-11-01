@@ -31,6 +31,7 @@ internal static partial class Program
         ShrinkTests();
         ReportTests();
         FileTests();
+        RecorderTests();
         Console.WriteLine($"OrderLab: {assertions} assertions passed");
         return 0;
     }
