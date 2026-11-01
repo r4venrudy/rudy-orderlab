@@ -12,5 +12,7 @@ internal static partial class Program
         Assert(Reports.Text(r).Contains("Witness: 1") && Reports.Text(r).Contains("[0,1]"),"readable replay and intervals");
         Assert(Reports.Html(r).Contains("<svg") && Reports.Html(r).Contains("Content-Security-Policy") && !Reports.Html(r).Contains("<script"),"local static timeline");
         Assert(Reports.Html(r with{Reason="<img onerror=alert(1)>"}).Contains("&lt;img"),"HTML encoding");
+        Assert(r.Initial[0].Sha256.Length==64 && r.Initial[0].Value is null,"digest-only default");
+        Assert(Reports.Json(Reports.Create(h,Checker.Check(h,new RegisterModel()),new string('a',64),true)).Contains("secret"),"explicit value disclosure");
     }
 }
