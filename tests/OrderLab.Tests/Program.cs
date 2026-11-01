@@ -16,6 +16,7 @@ internal static partial class Program
         GraphTests();
         ModelTests();
         SearchTests();
+        WitnessTests();
         Console.WriteLine($"OrderLab: {assertions} assertions passed");
         return 0;
     }
