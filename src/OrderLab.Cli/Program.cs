@@ -20,18 +20,20 @@ internal static class Program
                 if(!options.TryAdd(flag,value))throw new ArgumentException("Duplicate option.");
             }
             if(options.ContainsKey("--witness")!=(args[0]=="verify"))throw new ArgumentException("Only verify requires --witness.");
-            var bytes=File.ReadAllBytes(args[1]);var h=HistoryReader.Read(bytes);var model=Models.Get(h.Model);
+            using var source=new HistoryFile(args[1]);var h=HistoryReader.Read(source.Bytes);var model=Models.Get(h.Model);
             if(args[0]=="verify")
             {
                 var raw=options["--witness"];var nums=raw.Length==0?Array.Empty<int>():raw.Split(',').Select(Parse).ToArray();
                 if(nums.Any(i=>i<1 || i>h.Operations.Length))throw new ArgumentException("Witness index out of range.");
-                var ok=WitnessVerifier.Verify(h,model,nums.Select(i=>h.Operations[i-1].Id).ToArray());Console.WriteLine(ok?"Witness verified.":"Witness rejected.");return ok?0:1;
+                if(options.Keys.Any(k=>k!="--witness"))throw new ArgumentException("Verify accepts only --witness.");
+                var ok=WitnessVerifier.Verify(h,model,nums.Select(i=>h.Operations[i-1].Id).ToArray());source.EnsureStable();Console.WriteLine(ok?"Witness verified.":"Witness rejected.");return ok?0:1;
             }
             var format=options.GetValueOrDefault("--format","text");if(format is not ("text" or "json" or "html"))throw new ArgumentException("Unknown report format.");
             var limits=new Limits(Parse(options.GetValueOrDefault("--max-states","100000")),Parse(options.GetValueOrDefault("--timeout-ms","10000")));
             var r=options.ContainsKey("--partition")?PartitionChecker.Check(h,model,limits):Checker.Check(h,model,limits);
             if(r.Verdict==Verdict.Linearizable && !WitnessVerifier.Verify(h,model,r.Witness))throw new InvalidOperationException("Internal witness verification failed.");
-            var report=Reports.Create(h,r,Convert.ToHexStringLower(SHA256.HashData(bytes)),options.ContainsKey("--include-values"));
+            source.EnsureStable();
+            var report=Reports.Create(h,r,source.Sha256,options.ContainsKey("--include-values"));
             Console.Write(format switch{"json"=>Reports.Json(report),"html"=>Reports.Html(report),_=>Reports.Text(report)});
             return r.Verdict==Verdict.Linearizable?0:r.Verdict==Verdict.NotLinearizable?1:2;
         }
