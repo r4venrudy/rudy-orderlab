@@ -7,5 +7,8 @@ internal static partial class Program
         var r=PartitionChecker.Check(h,new RegisterModel());
         Assert(r.Verdict==Verdict.Linearizable && WitnessVerifier.Verify(h,new RegisterModel(),r.Witness),"partition witness merged");
         Assert(PartitionChecker.Check(h,new RegisterModel(),new(1)).Verdict==Verdict.Inconclusive,"global partition budget");
+        var malformed=new History(1,"register",["0"],[Op("bad-read",0,1,"read","never-written") with{Object="A"},Op("bad-schema",2,3,"execute",null) with{Object="B"}]);
+        Throws(()=>PartitionChecker.Check(malformed,new RegisterModel()),"an early rejecting object cannot hide malformed later operations");
+        Throws(()=>PartitionChecker.Check(h,new CounterModel()),"partition model mismatch");
     }
 }

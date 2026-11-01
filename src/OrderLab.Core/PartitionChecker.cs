@@ -6,6 +6,9 @@ public static class PartitionChecker
     {
         limits??=new();HistoryReader.Validate(h);
         if(limits.MaxStates<1 || limits.MaxStates>1_000_000 || limits.MaxMilliseconds<1 || limits.MaxMilliseconds>60_000)throw new ArgumentException("Invalid partition budget.");
+        if(h.Model!=model.Name)throw new ArgumentException("History and model differ.");
+        _=model.Initial(h.Initial);
+        foreach(var operation in h.Operations)model.Validate(operation);
         var clock=System.Diagnostics.Stopwatch.StartNew();long states=0,transitions=0,hits=0;
         var orders=new List<Queue<string>>();
         foreach(var group in h.Operations.GroupBy(o=>o.Object,StringComparer.Ordinal))
