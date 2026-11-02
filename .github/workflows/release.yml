@@ -102,4 +102,5 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           (cd release-assets && sha256sum orderlab-* *.nupkg > SHA256SUMS.txt)
+          python .github/scripts/release_guard.py release-assets
           gh release create "$GITHUB_REF_NAME" release-assets/orderlab-* release-assets/*.nupkg release-assets/SHA256SUMS.txt --title "Rudy OrderLab $GITHUB_REF_NAME" --notes-file docs/RELEASE.md --prerelease
